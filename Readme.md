@@ -15,9 +15,10 @@ Ultimately I think it should support import and export of anki decks but without
 by it's format. Which is pretty old now. 
 
 It should be a pure rust no javascript needed web application and every action should also be supported
-in api. 
+in api form with json. Except user signup which I think should be web only.  
 
-This is so that it is easy to host with a single service.
+This is so that it is easy to host locally. Intial support is being built with postgres but I would like it to 
+support sqlite as well so it could run in a single docker container for a single user if needed. 
 
 ## developement
 
