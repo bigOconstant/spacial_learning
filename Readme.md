@@ -1,6 +1,6 @@
 # Spacial repetition web app
 
-This repository is https://www.youtube.com/watch?v=2oRXK8FG1_4 to house a web based mobile first spacial repetition flash card learning application.
+This repository is meant to house a web based mobile first spacial repetition flash card learning application.
 
 The ultimate goal is to make it easily self hostable and support some kind of federation.
 
