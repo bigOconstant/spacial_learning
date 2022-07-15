@@ -26,6 +26,8 @@ USER $USERNAME
 WORKDIR /workspace
 RUN mkdir -p /home/developer/
 RUN sudo curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | bash -s -- -y
+RUN /home/developer/.cargo/bin/cargo install diesel_cli --no-default-features --features postgres
+
 EXPOSE 8536
 CMD ["sleep", "infinity"]
 #**************************************

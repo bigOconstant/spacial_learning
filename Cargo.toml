@@ -12,3 +12,7 @@ actix-web = "4"
 rand = "0.7"
 rust-argon2 = "0.5"
 serde = { version = "1", features = ["derive"] }
+diesel = { version = "1.4.4", features = ["postgres","chrono","r2d2","serde_json"] }
+dotenv = "0.15.0"
+
+

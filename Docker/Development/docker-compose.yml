@@ -10,6 +10,11 @@ services:
     restart: always
     volumes:
       - ../../:/workspace
+    environment:
+      - DATABASE_URL=postgres://user:password@postgres/spacial 
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=spacial
 
     
     depends_on: 

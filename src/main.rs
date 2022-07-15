@@ -5,20 +5,36 @@ use actix_web::http::StatusCode;
 use actix_web::middleware::{ErrorHandlerResponse, ErrorHandlers};
 use actix_web::{ middleware, web, App, HttpResponse, HttpServer, Result};
 use tera::Tera;
+use std::env;
 
 
+use diesel::{
+    r2d2::{ConnectionManager, Pool},
+    PgConnection,
+  };
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
+
+    let db_url = env::var("DATABASE_URL").unwrap();
+    let manager = ConnectionManager::<PgConnection>::new(&db_url);
+    let pool = Pool::builder()
+
+    .max_size(5)// To do, put this in a config somewhere
+    .build(manager)
+    .unwrap_or_else(|_| panic!("Error connecting to {}", db_url));
+
+
     std::env::set_var("RUST_LOG", "actix_web=info");
     env_logger::init();
 
     println!("Listening on: 127.0.0.1:8080, open browser and visit have a try!");
-    HttpServer::new(|| {
+    HttpServer::new( move|| {
         let tera = Tera::new(concat!(env!("CARGO_MANIFEST_DIR"), "/templates/**/*")).unwrap();
 
         App::new()
             .app_data(web::Data::new(tera))
+            .app_data(web::Data::new(pool.clone()))
             .wrap(middleware::Logger::default()) // enable logger
             .configure(spacial_learning::routes::routes)
             .service(web::scope("").wrap(error_handlers()))
