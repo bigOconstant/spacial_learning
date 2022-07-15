@@ -23,7 +23,7 @@ async fn main() -> std::io::Result<()> {
             .configure(spacial_learning::routes::routes)
             .service(web::scope("").wrap(error_handlers()))
     })
-    .bind(("127.0.0.1", 8080))?
+    .bind(("0.0.0.0", 8080))?
     .run()
     .await
 }

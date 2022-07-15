@@ -8,9 +8,8 @@ services:
     ports:
       - "8080:8080"
     restart: always
-    environment:
     volumes:
-      - ../:/workspace
+      - ../../:/workspace
 
     
     depends_on: 
