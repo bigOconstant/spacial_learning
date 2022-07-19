@@ -8,6 +8,10 @@ use tera::Tera;
 use std::env;
 
 
+
+#[macro_use]
+extern crate diesel;
+
 use diesel::{
     r2d2::{ConnectionManager, Pool},
     PgConnection,

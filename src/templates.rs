@@ -5,20 +5,49 @@ use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
 use argon2::Config;
 use rand::Rng;
+use diesel::{
+    r2d2::{ConnectionManager, Pool},
+    PgConnection,
+  };
+type DbPool = diesel::r2d2::Pool<ConnectionManager<PgConnection>>;
+type DbError = Box<dyn std::error::Error + Send + Sync>;
+use chrono::{NaiveDateTime};
 
-#[derive(Serialize, Deserialize)]
+use crate::diesel::RunQueryDsl;
+
+use crate::models::*;
+//use crate::schema::users::dsl::*;
+
+#[derive(Serialize, Deserialize,)]
 pub struct Register {
     username: String,
     email: String,
     password: String,
     confirmpassword: String,
 }
+pub fn insert_new_user <'a>(
+    nu: &'a UserInsertable,
+    conn: &PgConnection
+,
+) -> User {
+    
+    use crate::schema::users;
+    
 
+
+    
+
+    let ret_val = diesel::insert_into(users::table).values(nu).get_result(conn).expect("error");
+    return ret_val;
+}
 /// Simple handle POST request
 /// https://cloudmaker.dev/authenticate-api-users/
-pub async fn register(params: web::Form<Register>) -> Result<HttpResponse,Error> {
+pub async fn register(params: web::Form<Register>,pool: web::Data<DbPool>) -> Result<HttpResponse,Error> {
     println!("username:{}",params.username);
     println!("password:{}",params.password);
+
+    let conn = pool.get()
+        .map_err(|_| error::ErrorInternalServerError("database connection error"))?;
 
     let salt: [u8; 32] = rand::thread_rng().gen();
     let config = Config::default();
@@ -27,12 +56,24 @@ pub async fn register(params: web::Form<Register>) -> Result<HttpResponse,Error>
     println!("hashedpassword:{}",hashedpass);
     println!("confirmpassword:{}",params.confirmpassword);
     let verify = argon2::verify_encoded(&hashedpass, &params.password.as_bytes());
-            
-    println!("password:{}",params.email);
+    let naive_date_time = chrono::Utc::now().naive_utc();
+
+    let new_user = UserInsertable {
+        email:params.email.clone(),
+        password:hashedpass,
+        username:params.username.clone(),
+        last_login:naive_date_time.clone(),
+        created_on:naive_date_time.clone(),
+
+    };
+    let user = insert_new_user(&new_user,&conn);
+    println!("userid::{}",user.user_id);
     Ok(HttpResponse::Ok()
         .content_type("text/plain")
         .body(format!("Your name is {}", params.username)))
 }
+
+//pub async fn save_new_user()
 
 pub async fn loggedin(
     tmpl: web::Data<tera::Tera>,
@@ -92,3 +133,7 @@ pub async fn loggedin(
  
         Ok(HttpResponse::Ok().content_type("text/html").body(s))
     }
+
+
+
+    
