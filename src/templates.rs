@@ -16,30 +16,13 @@ use chrono::{NaiveDateTime};
 use crate::diesel::RunQueryDsl;
 
 use crate::models::*;
+use crate::view_models::*;
 //use crate::schema::users::dsl::*;
 
-#[derive(Serialize, Deserialize,)]
-pub struct RegisterCheck{
-    username:bool,
-    email:bool,
-    password:bool,
-    confirmpassword:bool
-}
-
-impl RegisterCheck {
-    fn new()->RegisterCheck {
-        return RegisterCheck { username: true, email: true, password: true, confirmpassword: true };
-    }
-}
 
 
-#[derive(Serialize, Deserialize,)]
-pub struct Register {
-    username: String,
-    email: String,
-    password: String,
-    confirmpassword: String,
-}
+
+
 pub fn insert_new_user <'a>(
     nu: &'a UserInsertable,
     conn: &PgConnection
@@ -57,30 +40,19 @@ pub fn insert_new_user <'a>(
 }
 /// Simple handle POST request
 /// https://cloudmaker.dev/authenticate-api-users/
-pub async fn register(params: web::Form<Register>,pool: web::Data<DbPool>,tmpl: web::Data<tera::Tera>) -> Result<HttpResponse,Error> {
-    let mut check = RegisterCheck::new();
-    if params.username.is_empty() {
-        check.username = false;
-        // let retval = build_register_page(&check,tmpl).await;
-        // return retval;
-    }
-    if params.email.is_empty() {
-        check.email = false;
-    }
-    if params.password.is_empty() {
-        check.password = false;
-    }
-    if params.confirmpassword.is_empty() {
-        check.confirmpassword = false;
-    }
+pub async fn register(mut params: web::Form<Register>,pool: web::Data<DbPool>,tmpl: web::Data<tera::Tera>) -> Result<HttpResponse,Error> {
+    
 
-    if !check.email || !check.password || !check.confirmpassword || !check.username {
-        let retval = build_register_page(&check,tmpl).await;
-        return retval;
-    }
-    println!("username:{}",params.username);
-    println!("password:{}",params.password);
 
+    let mut check = params.set_error();
+
+    if check.has_error() {
+        params.password = "".to_string();
+        params.confirmpassword = "".to_string();
+        let retval = build_register_page(&check,&params,tmpl).await;
+        return retval; 
+    }
+ 
     let conn = pool.get()
         .map_err(|_| error::ErrorInternalServerError("database connection error"))?;
 
@@ -88,8 +60,7 @@ pub async fn register(params: web::Form<Register>,pool: web::Data<DbPool>,tmpl: 
     let config = Config::default();
     let hashedpass = argon2::hash_encoded(params.password.as_bytes(), &salt, &config)
     .map_err(|e| error::ErrorInternalServerError("password wrap error"))?;
-    println!("hashedpassword:{}",hashedpass);
-    println!("confirmpassword:{}",params.confirmpassword);
+    
     let verify = argon2::verify_encoded(&hashedpass, &params.password.as_bytes());
     let naive_date_time = chrono::Utc::now().naive_utc();
 
@@ -106,8 +77,16 @@ pub async fn register(params: web::Form<Register>,pool: web::Data<DbPool>,tmpl: 
         Ok(user)=>{
             println!("new user created");
         },
-        Err(x)=>{
+        Err(x)=> {
+            if x.to_string() == "duplicate key value violates unique constraint \"users_username_key\"".to_string() { //Kinda hacky but also pretty effecient
+                check.set_username_error("username taken");
+            } else if x.to_string() == "duplicate key value violates unique constraint \"users_email_key\"".to_string() {
+                check.set_email_error("email taken");
+            }
             println!("Error:{}",x);
+            let retval = build_register_page(&check,&params,tmpl).await;
+            return retval; 
+            
         }
     }
 
@@ -145,15 +124,16 @@ pub async fn loggedin(
        
         let check = RegisterCheck::new();
      
-
+        let form = Register::new();
    
-        let retval =  build_register_page(&check,tmpl).await;
+        let retval =  build_register_page(&check,&form,tmpl).await;
         return retval;
     }
 
-    pub async fn build_register_page(rg:&RegisterCheck,tmpl: web::Data<tera::Tera>)-> Result<HttpResponse, Error>  {
+    pub async fn build_register_page(rg:&RegisterCheck,f:&Register,tmpl: web::Data<tera::Tera>)-> Result<HttpResponse, Error>  {
         let mut ctx = tera::Context::new();
         ctx.insert("check", &rg);
+        ctx.insert("f", &f);
         let s = tmpl.render("index.html", &ctx)
                 .map_err(|_| error::ErrorInternalServerError("Template error"))?;
        

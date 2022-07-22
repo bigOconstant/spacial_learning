@@ -1587,6 +1587,7 @@ dependencies = [
  "dotenv",
  "env_logger",
  "rand 0.7.3",
+ "regex",
  "rust-argon2",
  "serde",
  "tera",
