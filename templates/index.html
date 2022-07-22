@@ -17,7 +17,8 @@
 
     <div class="field">
       <p class="control has-icons-left has-icons-right">
-        <input class="input" type="text" name="username" placeholder="User Name">
+        <input class="input {% if not check.username %} is-danger {% endif %}" type="text" name="username" placeholder="User Name">
+        
         <span class="icon is-small is-left">
           <i class="fas fa-envelope"></i>
         </span>
@@ -25,10 +26,14 @@
           <i class="fas fa-check"></i>
         </span>
       </p>
+      {% if not check.username %}
+      <p class="help is-danger">Username is required</p>
+      {% endif %}
+
     </div>
     <div class="field">
       <p class="control has-icons-left has-icons-right">
-        <input class="input" type="email" name="email" placeholder="Email">
+        <input class="input {% if not check.email %} is-danger {% endif %}" type="email" name="email" placeholder="Email">
         <span class="icon is-small is-left">
           <i class="fas fa-envelope"></i>
         </span>
@@ -39,7 +44,7 @@
     </div>
     <div class="field">
       <p class="control has-icons-left">
-        <input class="input" type="password" name="password" placeholder="Password">
+        <input class="input {% if not check.password %} is-danger {% endif %}" type="password" name="password" placeholder="Password">
         <span class="icon is-small is-left">
           <i class="fas fa-lock"></i>
         </span>
@@ -47,7 +52,7 @@
     </div>
     <div class="field">
       <p class="control has-icons-left">
-        <input class="input" type="password" name="confirmpassword" placeholder="Confirm Password">
+        <input class="input {% if not check.confirmpassword %} is-danger {% endif %}" type="password" name="confirmpassword" placeholder="Confirm Password">
         <span class="icon is-small is-left">
           <i class="fas fa-lock"></i>
         </span>

@@ -32,7 +32,7 @@ async fn main() -> std::io::Result<()> {
     std::env::set_var("RUST_LOG", "actix_web=info");
     env_logger::init();
 
-    println!("Listening on: 127.0.0.1:8080, open browser and visit have a try!");
+    println!("Listening on: localhost:8080, open browser and visit have a try!");
     HttpServer::new( move|| {
         let tera = Tera::new(concat!(env!("CARGO_MANIFEST_DIR"), "/templates/**/*")).unwrap();
 

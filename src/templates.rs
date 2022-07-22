@@ -19,6 +19,21 @@ use crate::models::*;
 //use crate::schema::users::dsl::*;
 
 #[derive(Serialize, Deserialize,)]
+pub struct RegisterCheck{
+    username:bool,
+    email:bool,
+    password:bool,
+    confirmpassword:bool
+}
+
+impl RegisterCheck {
+    fn new()->RegisterCheck {
+        return RegisterCheck { username: true, email: true, password: true, confirmpassword: true };
+    }
+}
+
+
+#[derive(Serialize, Deserialize,)]
 pub struct Register {
     username: String,
     email: String,
@@ -29,7 +44,7 @@ pub fn insert_new_user <'a>(
     nu: &'a UserInsertable,
     conn: &PgConnection
 ,
-) -> User {
+) -> Result<User, diesel::result::Error> {
     
     use crate::schema::users;
     
@@ -37,12 +52,32 @@ pub fn insert_new_user <'a>(
 
     
 
-    let ret_val = diesel::insert_into(users::table).values(nu).get_result(conn).expect("error");
+    let ret_val = diesel::insert_into(users::table).values(nu).get_result(conn);
     return ret_val;
 }
 /// Simple handle POST request
 /// https://cloudmaker.dev/authenticate-api-users/
-pub async fn register(params: web::Form<Register>,pool: web::Data<DbPool>) -> Result<HttpResponse,Error> {
+pub async fn register(params: web::Form<Register>,pool: web::Data<DbPool>,tmpl: web::Data<tera::Tera>) -> Result<HttpResponse,Error> {
+    let mut check = RegisterCheck::new();
+    if params.username.is_empty() {
+        check.username = false;
+        // let retval = build_register_page(&check,tmpl).await;
+        // return retval;
+    }
+    if params.email.is_empty() {
+        check.email = false;
+    }
+    if params.password.is_empty() {
+        check.password = false;
+    }
+    if params.confirmpassword.is_empty() {
+        check.confirmpassword = false;
+    }
+
+    if !check.email || !check.password || !check.confirmpassword || !check.username {
+        let retval = build_register_page(&check,tmpl).await;
+        return retval;
+    }
     println!("username:{}",params.username);
     println!("password:{}",params.password);
 
@@ -66,8 +101,18 @@ pub async fn register(params: web::Form<Register>,pool: web::Data<DbPool>) -> Re
         created_on:naive_date_time.clone(),
 
     };
-    let user = insert_new_user(&new_user,&conn);
-    println!("userid::{}",user.user_id);
+    let user_result = insert_new_user(&new_user,&conn);
+    match user_result {
+        Ok(user)=>{
+            println!("new user created");
+        },
+        Err(x)=>{
+            println!("Error:{}",x);
+        }
+    }
+
+
+    //println!("userid::{}",user.user_id);
     Ok(HttpResponse::Ok()
         .content_type("text/plain")
         .body(format!("Your name is {}", params.username)))
@@ -97,30 +142,23 @@ pub async fn loggedin(
         query: web::Query<HashMap<String, String>>,
     ) -> Result<HttpResponse, Error> {
 
-        // let name = query.get("username");
-        // if name.is_none(){
-        //     let e =  Err(error::ErrorInternalServerError("query param error"));
-        //     return e;
-        // }
-        // let name = name.unwrap();
        
+        let check = RegisterCheck::new();
+     
 
+   
+        let retval =  build_register_page(&check,tmpl).await;
+        return retval;
+    }
 
-
-        let s = if let Some(name) = query.get("username") {
-            // submitted form
-            println!("username:{}",name);
-            let mut ctx = tera::Context::new();
-            ctx.insert("name", name);
-            ctx.insert("text", "Welcome! Create User");
-             tmpl.render("user.html", &ctx)
-                .map_err(|_| error::ErrorInternalServerError("Template error"))?
-        } else {
-            println!("didn't work");
-            tmpl.render("index.html", &tera::Context::new())
-                .map_err(|_| error::ErrorInternalServerError("Template error"))?
-        };
+    pub async fn build_register_page(rg:&RegisterCheck,tmpl: web::Data<tera::Tera>)-> Result<HttpResponse, Error>  {
+        let mut ctx = tera::Context::new();
+        ctx.insert("check", &rg);
+        let s = tmpl.render("index.html", &ctx)
+                .map_err(|_| error::ErrorInternalServerError("Template error"))?;
+       
         Ok(HttpResponse::Ok().content_type("text/html").body(s))
+
     }
 
 
