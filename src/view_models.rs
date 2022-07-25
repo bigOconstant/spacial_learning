@@ -57,7 +57,7 @@ impl Register {
 
     pub fn validate_email(&self) ->bool {
         let email_regex = Regex::new(r"^([a-z0-9_+]([a-z0-9_+.]*[a-z0-9_+])?)@([a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,6})").unwrap();
-        return  email_regex.is_match(&self.email);;
+        return  email_regex.is_match(&self.email);
     }
 
     pub fn set_error(&self)->RegisterCheck {

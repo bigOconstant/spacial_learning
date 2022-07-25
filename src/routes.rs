@@ -1,6 +1,6 @@
 
 use actix_web::{web};
-use crate::templates::{index,loggedin,register,home};
+use crate::template_logic::register::{index,loggedin,register,home};
 
 
 pub fn routes(cfg: &mut web::ServiceConfig) {
