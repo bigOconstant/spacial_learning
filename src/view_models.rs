@@ -7,7 +7,6 @@ pub struct FieldError{
     error_message:String,
 }
 
-
 #[derive(Serialize, Deserialize,)]
 pub struct RegisterCheck{
     pub username:FieldError,
@@ -101,15 +100,12 @@ impl Register {
             ret_val.confirmpassword.error_message =format!("{}{}", ret_val.confirmpassword.error_message, " passwords must match");
         }
 
-
-
         return ret_val;
     }
 }
 
 #[cfg(test)]
 mod tests {
-    // Note this useful idiom: importing names from outer (for mod tests) scope.
     use super::*;
 
     #[test]
@@ -137,7 +133,6 @@ mod tests {
         form.username = "ab".to_string();
         let c = form.set_error();
         println!("{}",c.username.error_message);
-        //assert_eq!(c.password.error_message, "password should be atleast 4 characters and less than 20. passwords must match. ".to_string());
     }
 
  
