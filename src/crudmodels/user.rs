@@ -2,7 +2,7 @@ extern crate diesel;
 
 use diesel::{Queryable,Insertable};
 use chrono::{NaiveDateTime};
- use super::schema::users;
+use crate::schema::users;
 
 #[derive(Queryable)]
 pub struct User {

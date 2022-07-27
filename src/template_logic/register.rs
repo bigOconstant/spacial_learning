@@ -11,7 +11,7 @@ use diesel::{
 type DbPool = diesel::r2d2::Pool<ConnectionManager<PgConnection>>;
 
 
-use crate::models::*;
+use crate::crudmodels::user::{User,UserInsertable};
 use crate::view_models::*;
 //use crate::schema::users::dsl::*;
 
@@ -77,21 +77,16 @@ pub async fn register(mut params: web::Form<Register>,pool: web::Data<DbPool>,tm
 
 //pub async fn save_new_user()
 
-pub async fn loggedin(
+pub async fn login(
     tmpl: web::Data<tera::Tera>,
     _: web::Query<HashMap<String, String>>,
 ) -> Result<HttpResponse, Error> {
 
-
-
-        println!("didn't work");
-       let render =  tmpl.render("loggedin.html", &tera::Context::new())
+       let render =  tmpl.render("login.html", &tera::Context::new())
             .map_err(|_| error::ErrorInternalServerError("Template error"))?;
    
     Ok(HttpResponse::Ok().content_type("text/html").body(render))
 }
-
-
 
 // store tera template in application state
     pub async fn index(

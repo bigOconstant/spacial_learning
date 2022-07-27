@@ -1,4 +1,4 @@
-use crate::models::{UserInsertable,User};
+use crate::crudmodels::user::{UserInsertable,User};
 use crate::diesel::RunQueryDsl;
 
 use diesel::{PgConnection};
