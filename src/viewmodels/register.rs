@@ -1,11 +1,7 @@
 use serde::{Deserialize, Serialize};
 use regex::Regex;
 
-#[derive(Serialize, Deserialize,)]
-pub struct FieldError{
-    valid:bool,
-    error_message:String,
-}
+use super::shared::FieldError;
 
 #[derive(Serialize, Deserialize,)]
 pub struct RegisterCheck{
