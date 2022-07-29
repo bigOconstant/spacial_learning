@@ -4,7 +4,7 @@ use diesel::{Queryable,Insertable};
 use chrono::{NaiveDateTime};
 use crate::schema::users;
 
-#[derive(Queryable)]
+#[derive(Debug, Clone, Queryable)]
 pub struct User {
     pub user_id: i32,
     pub username:  String,

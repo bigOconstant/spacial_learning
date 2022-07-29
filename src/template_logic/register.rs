@@ -11,11 +11,8 @@ use diesel::{
 type DbPool = diesel::r2d2::Pool<ConnectionManager<PgConnection>>;
 
 
-use crate::crudmodels::user::{User,UserInsertable};
+use crate::crudmodels::user::{UserInsertable};
 use crate::viewmodels::register::*;
-//use crate::schema::users::dsl::*;
-
-
 
 
 pub async fn register(mut params: web::Form<Register>,pool: web::Data<DbPool>,tmpl: web::Data<tera::Tera>) -> Result<HttpResponse,Error> {
@@ -69,20 +66,12 @@ pub async fn register(mut params: web::Form<Register>,pool: web::Data<DbPool>,tm
     }
 
 
-    //println!("userid::{}",user.user_id);
-    Ok(HttpResponse::Ok()
-        .content_type("text/plain")
-        .body(format!("Your name is {}", params.username)))
 }
-
-//pub async fn save_new_user()
-
-
 
 // store tera template in application state
     pub async fn index(
         tmpl: web::Data<tera::Tera>,
-        query: web::Query<HashMap<String, String>>,
+        _: web::Query<HashMap<String, String>>,
     ) -> Result<HttpResponse, Error> {
 
        
@@ -117,7 +106,7 @@ pub async fn register(mut params: web::Form<Register>,pool: web::Data<DbPool>,tm
 
     pub async fn home(
         tmpl: web::Data<tera::Tera>,
-        query: web::Query<HashMap<String, String>>,
+        _: web::Query<HashMap<String, String>>,
     ) -> Result<HttpResponse, Error> {  
         let s =  tmpl.render("home.html", &tera::Context::new())
                 .map_err(|_| error::ErrorInternalServerError("Template error"))?;

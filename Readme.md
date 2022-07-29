@@ -27,3 +27,5 @@ A docker-compose vscode environment is provide to make development easier. Start
 `docker-compose -f Docker/Development/docker-compose.yml up `
 
 And vscode should offer the option of openeing in a container. From there you can debug the rust program.
+
+run migrations with `diesel migration run`
