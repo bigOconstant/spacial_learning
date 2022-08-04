@@ -1,4 +1,4 @@
-use actix_web::{error, web,  Error, HttpResponse, Result};
+use actix_web::{error, web,  Error, HttpResponse, Result,cookie::Cookie};
 
 use diesel::{
     r2d2::{ConnectionManager},
@@ -25,7 +25,18 @@ pub async fn build_login_page(lc:&LoginCheck,l:&Login,tmpl: web::Data<tera::Tera
           .map_err(|_| error::ErrorInternalServerError("Template error"))?;
  
   Ok(HttpResponse::Ok().content_type("text/html").body(s))
+}
 
+pub async fn build_login_page_cookie(lc:&LoginCheck,l:&Login,tmpl: web::Data<tera::Tera>)-> Result<HttpResponse, Error>  {
+  let mut ctx = tera::Context::new();
+  ctx.insert("check", &lc);
+  ctx.insert("f", &l);
+  let s = tmpl.render("login.html", &ctx)
+          .map_err(|_| error::ErrorInternalServerError("Template error"))?;
+ 
+  let cookie = Cookie::build("user","deleted").finish();
+
+  Ok(HttpResponse::Ok().cookie(cookie).content_type("text/html").body(s))
 }
 
 pub async fn login_post(mut params: web::Form<Login>,pool: web::Data<DbPool>,tmpl: web::Data<tera::Tera>) -> Result<HttpResponse, Error> {
@@ -54,6 +65,8 @@ pub async fn login_post(mut params: web::Form<Login>,pool: web::Data<DbPool>,tmp
           return ret_val;
         } else{
           println!("Password correct!");
+          let ret_val = build_login_page_cookie(&check,&params,tmpl).await;
+          return ret_val;
         }
       },
       Err(e) =>{// todo; change this 
