@@ -15,7 +15,7 @@ serde = { version = "1", features = ["derive"] }
 dotenv = "0.15.0"
 chrono = "0.4"
 diesel = { version = "1.4.4", features = ["postgres","chrono","r2d2","serde_json"] }
-
+uuid = { version = "0.8", features = ["serde", "v4"] }
 tokio-pg-mapper = "0.2.0"
 tokio-pg-mapper-derive = "0.2.0"
 tokio-postgres = "0.7.6"

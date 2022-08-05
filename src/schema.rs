@@ -4,7 +4,6 @@ table! {
         user_id -> Nullable<Int4>,
         uuid -> Varchar,
         created_on -> Timestamp,
-        last_login -> Nullable<Timestamp>,
     }
 }
 
