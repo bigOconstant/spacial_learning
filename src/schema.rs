@@ -1,7 +1,7 @@
 table! {
     user_sessions (id) {
         id -> Int4,
-        user_id -> Nullable<Int4>,
+        user_id -> Int4,
         uuid -> Varchar,
         created_on -> Timestamp,
     }

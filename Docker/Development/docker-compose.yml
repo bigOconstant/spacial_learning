@@ -16,9 +16,7 @@ services:
       - POSTGRES_PASSWORD=password
       - POSTGRES_DB=spacial
 
-    
     depends_on: 
-      - pictrs
       - postgres
  
   postgres:

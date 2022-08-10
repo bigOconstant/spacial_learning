@@ -13,8 +13,8 @@ pub fn insert_new_user_session <'a>(
 ,
 ) -> Result<crate::crudmodels::user_sessions::UserSession, diesel::result::Error> {
     
-    use crate::schema::users;
+    use crate::schema::user_sessions;
 
-    let ret_val = diesel::insert_into(users::table).values(nu).get_result(conn);
+    let ret_val = diesel::insert_into(user_sessions::table).values(nu).get_result(conn);
     return ret_val;
 }
